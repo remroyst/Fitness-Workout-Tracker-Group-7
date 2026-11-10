@@ -199,3 +199,115 @@ CREATE TABLE IF NOT EXISTS saved_video_recipes (
     FOREIGN KEY (recipe_id)
         REFERENCES video_recipes(recipe_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Non-AI feature extensions.
+
+CREATE TABLE IF NOT EXISTS user_preferences (
+    user_id INT PRIMARY KEY,
+    birth_date DATE NULL,
+    height_cm DECIMAL(6,2) NULL,
+    fitness_level ENUM('beginner','intermediate','advanced')
+        NOT NULL DEFAULT 'beginner',
+    dietary_preferences VARCHAR(500) NOT NULL DEFAULT '',
+    allergies VARCHAR(500) NOT NULL DEFAULT '',
+    intolerances VARCHAR(500) NOT NULL DEFAULT '',
+    unit_system ENUM('metric','imperial')
+        NOT NULL DEFAULT 'metric',
+    profile_visibility ENUM('private','friends','public')
+        NOT NULL DEFAULT 'friends',
+    bio VARCHAR(500) NOT NULL DEFAULT '',
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS social_blocks (
+    blocker_id INT NOT NULL,
+    blocked_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (blocker_id, blocked_id),
+    FOREIGN KEY (blocker_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (blocked_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    CHECK (blocker_id <> blocked_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS social_messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    recipient_id INT NOT NULL,
+    content VARCHAR(2000) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at DATETIME NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (recipient_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    INDEX idx_messages_recipient (recipient_id, created_at)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS social_reports (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,
+    reporter_id INT NOT NULL,
+    reported_user_id INT NOT NULL,
+    post_id INT NULL,
+    reason VARCHAR(500) NOT NULL,
+    status ENUM('pending','reviewed','resolved')
+        NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reporter_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (reported_user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES social_posts(post_id)
+        ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS fitness_challenges (
+    challenge_id INT AUTO_INCREMENT PRIMARY KEY,
+    creator_id INT NOT NULL,
+    title VARCHAR(120) NOT NULL,
+    description VARCHAR(500) NOT NULL DEFAULT '',
+    target_minutes INT UNSIGNED NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    FOREIGN KEY (creator_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    CHECK (target_minutes > 0),
+    CHECK (end_date >= start_date)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS challenge_participants (
+    challenge_id INT NOT NULL,
+    user_id INT NOT NULL,
+    joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (challenge_id, user_id),
+    FOREIGN KEY (challenge_id)
+        REFERENCES fitness_challenges(challenge_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS activity_details (
+    activity_event_id INT PRIMARY KEY,
+    distance_km DECIMAL(10,3) NULL,
+    sets_completed INT UNSIGNED NULL,
+    repetitions INT UNSIGNED NULL,
+    intensity ENUM('low','moderate','high')
+        NOT NULL DEFAULT 'moderate',
+    FOREIGN KEY (activity_event_id)
+        REFERENCES activity_events(activity_event_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS recipe_nutrition (
+    recipe_id INT PRIMARY KEY,
+    calories_per_serving DECIMAL(10,2) NULL,
+    protein_g DECIMAL(10,2) NULL,
+    carbs_g DECIMAL(10,2) NULL,
+    fat_g DECIMAL(10,2) NULL,
+    FOREIGN KEY (recipe_id)
+        REFERENCES video_recipes(recipe_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;

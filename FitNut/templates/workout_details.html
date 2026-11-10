@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Workout Details · FitNut{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">TRAINING HISTORY</p>
+  <h1>Workout details</h1>
+  <p class="muted">
+    Record distance, sets, repetitions and intensity
+    for workouts you've already logged.
+  </p>
+</section>
+
+<div class="community-layout">
+  <section class="panel">
+    <h2>Update a workout</h2>
+
+    {% if workouts %}
+    <form id="workout-details-form">
+      <label>
+        Workout
+        <select name="activity_event_id" required>
+          {% for workout in workouts %}
+          <option value="{{ workout.activity_event_id }}">
+            {{ workout.time_started }} —
+            {{ workout.custom_activity_name or workout.activity_name }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Distance (km)
+        <input type="number"
+               name="distance_km"
+               min="0"
+               step="0.001">
+      </label>
+
+      <div class="field-pair">
+        <label>
+          Sets
+          <input type="number"
+                 name="sets_completed"
+                 min="0">
+        </label>
+
+        <label>
+          Repetitions
+          <input type="number"
+                 name="repetitions"
+                 min="0">
+        </label>
+      </div>
+
+      <label>
+        Intensity
+        <select name="intensity">
+          <option value="low">Low</option>
+          <option value="moderate">Moderate</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button class="button" type="submit">
+        Save workout details
+      </button>
+    </form>
+    {% else %}
+    <p class="muted">
+      Log an activity first.
+    </p>
+    <a href="/activity">Go to activity logging</a>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>Additional personal records</h2>
+
+    <div id="extended-records"
+         aria-live="polite">
+      Loading records...
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Recent workout measurements</h2>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Workout</th>
+          <th>Distance</th>
+          <th>Sets</th>
+          <th>Reps</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for workout in workouts %}
+        <tr>
+          <td>{{ workout.time_started }}</td>
+          <td>
+            {{ workout.custom_activity_name or workout.activity_name }}
+          </td>
+          <td>{{ workout.distance_km if workout.distance_km is not none else '—' }}</td>
+          <td>{{ workout.sets_completed if workout.sets_completed is not none else '—' }}</td>
+          <td>{{ workout.repetitions if workout.repetitions is not none else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5">No workouts logged.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script
+  id="workout-data"
+  type="application/json">{{ workouts|tojson }}</script>
+
+<script src="{{ url_for('static', filename='workout_details.js') }}"
+        defer></script>
+{% endblock %}

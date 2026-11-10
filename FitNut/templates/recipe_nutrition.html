@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Nutrition · FitNut{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">RECIPE NUTRITION</p>
+  <h1>{{ recipe.title }}</h1>
+  <p class="muted">
+    Nutrition values are per serving.
+    Recipe makes {{ recipe.servings }} servings.
+  </p>
+</section>
+
+<section class="panel">
+  <h2>Nutrition per serving</h2>
+
+  {% if nutrition %}
+  <div class="nutrition-grid">
+    <div class="nutrition-stat">
+      <strong>
+        {{ nutrition.calories_per_serving if nutrition.calories_per_serving is not none else '—' }}
+      </strong>
+      <span>Calories</span>
+    </div>
+
+    <div class="nutrition-stat">
+      <strong>
+        {{ nutrition.protein_g if nutrition.protein_g is not none else '—' }}
+      </strong>
+      <span>Protein (g)</span>
+    </div>
+
+    <div class="nutrition-stat">
+      <strong>
+        {{ nutrition.carbs_g if nutrition.carbs_g is not none else '—' }}
+      </strong>
+      <span>Carbs (g)</span>
+    </div>
+
+    <div class="nutrition-stat">
+      <strong>
+        {{ nutrition.fat_g if nutrition.fat_g is not none else '—' }}
+      </strong>
+      <span>Fat (g)</span>
+    </div>
+  </div>
+  {% else %}
+  <p class="muted">
+    No nutrition information has been added yet.
+  </p>
+  {% endif %}
+</section>
+
+{% if can_edit %}
+<section class="panel">
+  <h2>Edit nutrition</h2>
+
+  <form
+    data-api="/api/recipes/{{ recipe.recipe_id }}/nutrition"
+    data-redirect="/recipes/{{ recipe.recipe_id }}/nutrition">
+
+    <div class="field-pair">
+      <label>
+        Calories per serving
+        <input type="number"
+               name="calories_per_serving"
+               min="0"
+               step="0.01"
+               value="{{ nutrition.calories_per_serving if nutrition and nutrition.calories_per_serving is not none else '' }}">
+      </label>
+
+      <label>
+        Protein (g)
+        <input type="number"
+               name="protein_g"
+               min="0"
+               step="0.01"
+               value="{{ nutrition.protein_g if nutrition and nutrition.protein_g is not none else '' }}">
+      </label>
+
+      <label>
+        Carbohydrates (g)
+        <input type="number"
+               name="carbs_g"
+               min="0"
+               step="0.01"
+               value="{{ nutrition.carbs_g if nutrition and nutrition.carbs_g is not none else '' }}">
+      </label>
+
+      <label>
+        Fat (g)
+        <input type="number"
+               name="fat_g"
+               min="0"
+               step="0.01"
+               value="{{ nutrition.fat_g if nutrition and nutrition.fat_g is not none else '' }}">
+      </label>
+    </div>
+
+    <p class="form-message" role="alert" hidden></p>
+
+    <button class="button" type="submit">
+      Save nutrition
+    </button>
+  </form>
+</section>
+{% endif %}
+
+<a href="/recipes">Back to recipes</a>
+{% endblock %}

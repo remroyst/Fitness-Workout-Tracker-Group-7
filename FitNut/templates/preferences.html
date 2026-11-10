@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Preferences · FitNut{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">YOUR ACCOUNT</p>
+  <h1>Fitness preferences</h1>
+  <p class="muted">
+    Personalize your fitness and nutrition profile.
+  </p>
+</section>
+
+<section class="panel">
+  <form data-api="/api/preferences"
+        data-redirect="/preferences">
+
+    <div class="field-pair">
+      <label>
+        Date of birth
+        <input type="date"
+               name="birth_date"
+               value="{{ preferences.birth_date if preferences and preferences.birth_date else '' }}">
+      </label>
+
+      <label>
+        Height (cm)
+        <input type="number"
+               name="height_cm"
+               min="50"
+               max="275"
+               step="0.01"
+               value="{{ preferences.height_cm if preferences and preferences.height_cm else '' }}">
+      </label>
+    </div>
+
+    {% set level = preferences.fitness_level if preferences else 'beginner' %}
+    {% set units = preferences.unit_system if preferences else 'metric' %}
+    {% set visibility = preferences.profile_visibility if preferences else 'friends' %}
+
+    <div class="field-pair">
+      <label>
+        Fitness level
+        <select name="fitness_level">
+          {% for value in ['beginner', 'intermediate', 'advanced'] %}
+          <option value="{{ value }}"
+                  {% if level == value %}selected{% endif %}>
+            {{ value|capitalize }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Preferred units
+        <select name="unit_system">
+          <option value="metric"
+                  {% if units == 'metric' %}selected{% endif %}>
+            Metric
+          </option>
+          <option value="imperial"
+                  {% if units == 'imperial' %}selected{% endif %}>
+            Imperial
+          </option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Dietary preferences
+      <textarea name="dietary_preferences"
+                maxlength="500"
+                rows="2">{{ preferences.dietary_preferences if preferences else '' }}</textarea>
+    </label>
+
+    <label>
+      Allergies
+      <textarea name="allergies"
+                maxlength="500"
+                rows="2">{{ preferences.allergies if preferences else '' }}</textarea>
+    </label>
+
+    <label>
+      Food intolerances
+      <textarea name="intolerances"
+                maxlength="500"
+                rows="2">{{ preferences.intolerances if preferences else '' }}</textarea>
+    </label>
+
+    <label>
+      Profile visibility preference
+      <select name="profile_visibility">
+        {% for value in ['private', 'friends', 'public'] %}
+        <option value="{{ value }}"
+                {% if visibility == value %}selected{% endif %}>
+          {{ value|capitalize }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <p class="hint">
+      This preference does not change existing social-feed
+      permissions until visibility enforcement is integrated.
+    </p>
+
+    <label>
+      Profile bio
+      <textarea name="bio"
+                maxlength="500"
+                rows="3">{{ preferences.bio if preferences else '' }}</textarea>
+    </label>
+
+    <p class="form-message" role="alert" hidden></p>
+
+    <button class="button" type="submit">
+      Save preferences
+    </button>
+  </form>
+</section>
+{% endblock %}

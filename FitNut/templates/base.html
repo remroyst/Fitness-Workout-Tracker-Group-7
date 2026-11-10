@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#191a1d">
+  <meta name="theme-color" content="#101827">
   <meta name="csrf-token" content="{{ g.csrf_token }}">
 
   <title>{% block title %}FitNut{% endblock %}</title>
@@ -13,6 +13,16 @@
     rel="stylesheet"
     href="{{ url_for('static', filename='style.css') }}"
   >
+
+  <link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='midnight-mint.css') }}"
+>
+
+<script
+  src="{{ url_for('static', filename='theme.js') }}"
+  defer>
+</script>
 
   {% if request.path == '/exercises' %}
   <link
@@ -42,25 +52,28 @@
   ('/dashboard', 'Overview'),
   ('/food', 'Food'),
   ('/activity', 'Activity'),
+  ('/workout-details', 'Workout Details'),
   ('/sleep', 'Sleep'),
   ('/exercises', 'Exercises'),
   ('/goals', 'Goals'),
   ('/reminders', 'Reminders'),
   ('/profile', 'Profile'),
-('/measurements', 'Measurements'),
+  ('/preferences', 'Preferences'),
+  ('/measurements', 'Measurements'),
   ('/social', 'Social'),
+  ('/community', 'Community'),
   ('/records', 'Records'),
   ('/recipes', 'Recipes')
 ] %}
-          <a
-            href="{{ path }}"
-            {% if request.path == path %}
-              aria-current="page"
-            {% endif %}
-          >
-            {{ label }}
-          </a>
-        {% endfor %}
+  <a
+    href="{{ path }}"
+    {% if request.path == path %}
+      aria-current="page"
+    {% endif %}
+  >
+    {{ label }}
+  </a>
+{% endfor %}
 
         {% if g.user.role == 'admin' %}
           <a
@@ -72,6 +85,14 @@
             Users
           </a>
         {% endif %}
+
+        <button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  aria-label="Switch theme">
+  ☀ Light mode
+</button>
 
         <button
           class="nav-button"

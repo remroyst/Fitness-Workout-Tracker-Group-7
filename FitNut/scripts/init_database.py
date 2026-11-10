@@ -13,7 +13,7 @@ load_dotenv(PROJECT / ".env.local")
 
 def table_statements():
     # The hosting provider chooses the database name, so skip CREATE DATABASE/USE.
-    for filename in ("schema.sql", "other-tables.sql"):
+    for filename in ("other-tables.sql", "schema.sql"):
         sql = (PROJECT / "database" / filename).read_text(encoding="utf-8")
         sql = "\n".join(line for line in sql.splitlines() if not line.lstrip().startswith("--"))
         for statement in sql.split(";"):

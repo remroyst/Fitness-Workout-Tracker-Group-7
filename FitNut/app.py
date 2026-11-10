@@ -30,6 +30,11 @@ from measurements import measurements
 from social import social
 from personal_records import personal_records
 from recipe_videos import recipe_videos
+from community import community
+from preferences import preferences
+from activity_details import activity_details
+from data_export import data_export
+from recipe_nutrition import recipe_nutrition
 
 
 app = Flask(__name__)
@@ -70,6 +75,11 @@ app.register_blueprint(measurements)
 app.register_blueprint(social)
 app.register_blueprint(personal_records)
 app.register_blueprint(recipe_videos)
+app.register_blueprint(community)
+app.register_blueprint(preferences)
+app.register_blueprint(activity_details)
+app.register_blueprint(data_export)
+app.register_blueprint(recipe_nutrition)
 
 app.before_request(load_user)
 app.teardown_appcontext(close_db)
