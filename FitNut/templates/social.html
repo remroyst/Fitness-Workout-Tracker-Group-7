@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Social Network · FitNut{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">FITNUT COMMUNITY</p>
+    <h1>Friends & Social</h1>
+    <p class="muted">
+      Connect with friends and share your fitness journey.
+    </p>
+  </div>
+</section>
+
+<div class="journal-layout">
+
+  <section class="panel">
+    <h2>Find Friends</h2>
+
+    <form method="get" action="/social">
+      <label>
+        Search by name
+        <input
+          name="q"
+          value="{{ search }}"
+          maxlength="80"
+          placeholder="Enter a name"
+        >
+      </label>
+
+      <button type="submit">Search</button>
+    </form>
+
+    {% for person in people %}
+      <div class="social-item">
+        <strong>
+          {{ person.first_name }} {{ person.last_name }}
+        </strong>
+
+        {% set ns = namespace(existing=false) %}
+
+        {% for friendship in friendships %}
+          {% if
+            friendship.requester_id == person.user_id
+            or friendship.addressee_id == person.user_id
+          %}
+            {% set ns.existing = true %}
+            <span class="muted">
+              {{ friendship.status|capitalize }}
+            </span>
+          {% endif %}
+        {% endfor %}
+
+        {% if not ns.existing %}
+          <button
+            type="button"
+            data-social-action="/social/friends/{{ person.user_id }}"
+            data-method="POST"
+          >
+            Add Friend
+          </button>
+        {% endif %}
+      </div>
+    {% else %}
+      {% if search %}
+        <p>No users found.</p>
+      {% endif %}
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <h2>Friend Requests</h2>
+
+    {% for item in incoming %}
+      <div class="social-item">
+        <p>{{ item.first_name }} {{ item.last_name }}</p>
+
+        <button
+          type="button"
+          data-social-action="/social/friends/{{ item.friendship_id }}/accept"
+          data-method="POST"
+        >
+          Accept
+        </button>
+
+        <button
+          type="button"
+          data-social-action="/social/friends/{{ item.friendship_id }}"
+          data-method="DELETE"
+        >
+          Decline
+        </button>
+      </div>
+    {% else %}
+      <p class="muted">No incoming requests.</p>
+    {% endfor %}
+
+    <h3>Sent Requests</h3>
+
+    {% for item in outgoing %}
+      <div class="social-item">
+        <span>{{ item.first_name }} {{ item.last_name }}</span>
+
+        <button
+          type="button"
+          data-social-action="/social/friends/{{ item.friendship_id }}"
+          data-method="DELETE"
+        >
+          Cancel Request
+        </button>
+      </div>
+    {% else %}
+      <p class="muted">No pending sent requests.</p>
+    {% endfor %}
+  </section>
+
+</div>
+
+<section class="panel dashboard-section">
+  <h2>Your Friends</h2>
+
+  {% for friend in friends %}
+    <div class="social-item">
+      <strong>{{ friend.first_name }} {{ friend.last_name }}</strong>
+
+      {% for friendship in friendships %}
+        {% if friendship.status == 'accepted'
+          and (
+            friendship.requester_id == friend.user_id
+            or friendship.addressee_id == friend.user_id
+          )
+        %}
+          <button
+            type="button"
+            data-social-action="/social/friends/{{ friendship.friendship_id }}"
+            data-method="DELETE"
+            data-confirm="Remove this friend?"
+          >
+            Remove Friend
+          </button>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">You haven't added any friends yet.</p>
+  {% endfor %}
+</section>
+
+<section class="panel dashboard-section">
+  <h2>Share an Update</h2>
+
+  <form data-api="/social/posts" data-redirect="/social">
+    <label>
+      What's new in your fitness journey?
+      <textarea
+        name="content"
+        rows="4"
+        maxlength="1000"
+        required
+        placeholder="Share a workout milestone or fitness achievement..."
+      ></textarea>
+    </label>
+
+    <p class="form-message" role="alert" hidden></p>
+
+    <button type="submit">Share Post</button>
+  </form>
+</section>
+
+<section class="panel dashboard-section">
+  <h2>Friends Feed</h2>
+
+  {% for post in feed %}
+    <article class="social-post">
+      <h3>{{ post.first_name }} {{ post.last_name }}</h3>
+
+      <p class="muted">{{ post.created_at }}</p>
+
+      <p class="social-content">{{ post.content }}</p>
+
+      <button
+        type="button"
+        data-social-action="/social/posts/{{ post.post_id }}/like"
+        data-method="POST"
+      >
+        {{ 'Unlike' if post.liked_by_me else 'Like' }}
+        ({{ post.like_count }})
+      </button>
+
+      {% if post.user_id == current_user_id %}
+        <button
+          type="button"
+          data-social-action="/social/posts/{{ post.post_id }}"
+          data-method="DELETE"
+          data-confirm="Delete this post?"
+        >
+          Delete Post
+        </button>
+      {% endif %}
+
+      <div class="social-comments">
+        <h4>Comments</h4>
+
+        {% for comment in comments_by_post.get(post.post_id, []) %}
+          <div class="social-comment">
+            <strong>
+              {{ comment.first_name }} {{ comment.last_name }}
+            </strong>
+
+            <p>{{ comment.content }}</p>
+
+            {% if comment.user_id == current_user_id %}
+              <button
+                type="button"
+                data-social-action="/social/comments/{{ comment.comment_id }}"
+                data-method="DELETE"
+              >
+                Delete
+              </button>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <form
+          data-api="/social/posts/{{ post.post_id }}/comments"
+          data-redirect="/social"
+        >
+          <label>
+            Add a comment
+            <input
+              name="content"
+              maxlength="500"
+              required
+              placeholder="Write a supportive comment..."
+            >
+          </label>
+
+          <p class="form-message" role="alert" hidden></p>
+
+          <button type="submit">Comment</button>
+        </form>
+      </div>
+    </article>
+
+  {% else %}
+    <p class="muted">
+      Your feed is empty. Share an update or connect with friends.
+    </p>
+  {% endfor %}
+</section>
+
+<script
+  src="{{ url_for('static', filename='social.js') }}"
+  defer
+></script>
+
+{% endblock %}

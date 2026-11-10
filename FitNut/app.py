@@ -27,6 +27,8 @@ from goals import goals, goal_progress
 from reminders import reminders
 from profile import profile
 from measurements import measurements
+from social import social
+from personal_records import personal_records
 
 
 app = Flask(__name__)
@@ -64,6 +66,8 @@ app.register_blueprint(goals)
 app.register_blueprint(reminders)
 app.register_blueprint(profile)
 app.register_blueprint(measurements)
+app.register_blueprint(social)
+app.register_blueprint(personal_records)
 
 app.before_request(load_user)
 app.teardown_appcontext(close_db)

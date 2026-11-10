@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Personal Records · FitNut{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">YOUR ACHIEVEMENTS</p>
+    <h1>Personal Records</h1>
+    <p class="muted">
+      Your best performances, calculated from your activity logs.
+    </p>
+  </div>
+</section>
+
+<div class="dashboard-cards">
+
+  <section class="panel">
+    <h2>Longest Workout</h2>
+
+    {% if longest %}
+      <p class="record-highlight">
+        {{ (longest.duration_seconds / 60)|round(1) }} min
+      </p>
+      <p>{{ longest.activity_name }}</p>
+      <p class="muted">{{ longest.time_started.date() }}</p>
+    {% else %}
+      <p>No workouts logged yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>Highest Calories Burned</h2>
+
+    {% if calories %}
+      <p class="record-highlight">
+        {{ calories.calories_burned }} kcal
+      </p>
+      <p>{{ calories.activity_name }}</p>
+      <p class="muted">{{ calories.time_started.date() }}</p>
+    {% else %}
+      <p>No calorie records yet.</p>
+    {% endif %}
+  </section>
+
+</div>
+
+<section class="panel dashboard-section">
+  <h2>Records by Activity</h2>
+
+  {% if records %}
+
+    <div class="records-grid">
+      {% for record in records %}
+
+        <article class="record-achievement">
+          <h3>{{ record.activity_name }}</h3>
+
+          <p>
+            <strong>Longest workout:</strong>
+            {{ record.longest_minutes }} minutes
+          </p>
+
+          <p>
+            <strong>Highest calories burned:</strong>
+            {% if record.highest_calories is not none %}
+              {{ record.highest_calories }} kcal
+            {% else %}
+              Not recorded
+            {% endif %}
+          </p>
+
+          <p>
+            <strong>Total workout time:</strong>
+            {{ record.total_hours }} hours
+          </p>
+
+          <p>
+            <strong>Workouts completed:</strong>
+            {{ record.workout_count }}
+          </p>
+        </article>
+
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <p class="muted">
+      No personal records yet. Log a workout to get started.
+    </p>
+    <a href="/activity">Log an activity</a>
+  {% endif %}
+
+</section>
+
+{% endblock %}
