@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Community · FitNut{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">CONNECT & GROW</p>
+  <h1>Community</h1>
+  <p class="muted">
+    Message friends, join challenges and manage your connections.
+  </p>
+</section>
+
+<div class="community-layout">
+
+  <section class="panel">
+    <h2>Messages</h2>
+
+    {% if friends %}
+    <form data-api="/api/community/messages"
+          data-redirect="/community">
+
+      <label>
+        Friend
+        <select name="recipient_id" required>
+          {% for friend in friends %}
+          <option value="{{ friend.user_id }}">
+            {{ friend.first_name }} {{ friend.last_name }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Message
+        <textarea name="content"
+                  maxlength="2000"
+                  rows="3"
+                  required></textarea>
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button class="button" type="submit">
+        Send message
+      </button>
+    </form>
+    {% else %}
+    <p class="muted">
+      Add friends through the Social page to start messaging.
+    </p>
+    <a href="/social">Go to Social</a>
+    {% endif %}
+
+    <h3>Recent messages</h3>
+
+    <div class="community-message-list">
+      {% for message in messages %}
+      <article class="community-message">
+        <strong>
+          {% if message.sender_id == current_user_id %}
+          You
+          {% else %}
+          {{ message.first_name }} {{ message.last_name }}
+          {% endif %}
+        </strong>
+
+        <p>{{ message.content }}</p>
+        <small>{{ message.created_at }}</small>
+      </article>
+      {% else %}
+      <p class="muted">No messages yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Fitness challenges</h2>
+
+    <form data-api="/api/community/challenges"
+          data-redirect="/community">
+
+      <label>
+        Title
+        <input name="title"
+               maxlength="120"
+               required>
+      </label>
+
+      <label>
+        Description
+        <textarea name="description"
+                  maxlength="500"></textarea>
+      </label>
+
+      <label>
+        Target workout minutes
+        <input type="number"
+               name="target_minutes"
+               min="1"
+               max="100000"
+               required>
+      </label>
+
+      <div class="field-pair">
+        <label>
+          Start date
+          <input type="date"
+                 name="start_date"
+                 required>
+        </label>
+
+        <label>
+          End date
+          <input type="date"
+                 name="end_date"
+                 required>
+        </label>
+      </div>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button class="button" type="submit">
+        Create challenge
+      </button>
+    </form>
+
+    <h3>Available challenges</h3>
+
+    {% for challenge in challenges %}
+    <article class="community-challenge">
+      <h3>{{ challenge.title }}</h3>
+      <p>{{ challenge.description }}</p>
+
+      <p>
+        <strong>Target:</strong>
+        {{ challenge.target_minutes }} minutes
+      </p>
+
+      <p class="muted">
+        {{ challenge.start_date }} to {{ challenge.end_date }}
+      </p>
+
+      <p class="muted">
+        {{ challenge.participant_count }} participants
+      </p>
+
+      {% if challenge.joined %}
+      <button type="button"
+              data-challenge-progress="{{ challenge.challenge_id }}">
+        My progress
+      </button>
+      {% else %}
+      <button type="button"
+              data-challenge-join="{{ challenge.challenge_id }}">
+        Join challenge
+      </button>
+      {% endif %}
+    </article>
+    {% else %}
+    <p class="muted">No available challenges.</p>
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <h2>Safety</h2>
+
+    <h3>Block a user</h3>
+
+    <form data-api="/api/community/block"
+          data-redirect="/community">
+
+      <label>
+        User ID
+        <input type="number"
+               name="user_id"
+               min="1"
+               required>
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+      <button type="submit">Block</button>
+    </form>
+
+    <h3>Blocked users</h3>
+
+    {% for person in blocked_users %}
+    <div class="community-blocked-user">
+      <span>
+        {{ person.first_name }} {{ person.last_name }}
+      </span>
+
+      <button type="button"
+              data-unblock="{{ person.user_id }}">
+        Unblock
+      </button>
+    </div>
+    {% else %}
+    <p class="muted">No blocked users.</p>
+    {% endfor %}
+
+    <h3>Report a user</h3>
+
+    <form data-api="/api/community/report"
+          data-redirect="/community">
+
+      <label>
+        User ID
+        <input type="number"
+               name="user_id"
+               min="1"
+               required>
+      </label>
+
+      <label>
+        Reason
+        <textarea name="reason"
+                  maxlength="500"
+                  required></textarea>
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+      <button type="submit">Submit report</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Your data</h2>
+
+    <p class="muted">
+      Export your logs for personal records and analysis.
+    </p>
+
+    <div class="actions">
+      <a class="button" href="/export/food.csv">
+        Food CSV
+      </a>
+      <a class="button" href="/export/activity.csv">
+        Activity CSV
+      </a>
+      <a class="button" href="/export/sleep.csv">
+        Sleep CSV
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<script src="{{ url_for('static', filename='community.js') }}"
+        defer></script>
+{% endblock %}
