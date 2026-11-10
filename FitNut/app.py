@@ -23,6 +23,8 @@ from logs import logs, LOG_TYPES
 from log_data import read_items, meal_choices
 from dashboard_data import dashboard_summary
 from exercise_library import exercise_library
+from goals import goals, goal_progress
+from reminders import reminders
 
 
 app = Flask(__name__)
@@ -56,6 +58,8 @@ if os.getenv("TRUST_PROXY", "false").lower() == "true":
 app.register_blueprint(accounts)
 app.register_blueprint(logs)
 app.register_blueprint(exercise_library)
+app.register_blueprint(goals)
+app.register_blueprint(reminders)
 
 app.before_request(load_user)
 app.teardown_appcontext(close_db)
@@ -151,8 +155,9 @@ def dashboard():
     summary = dashboard_summary(period, selected)
 
     return render_template(
-        "dashboard.html",
-        summary=summary,
+    "dashboard.html",
+    summary=summary,
+    goal_data=goal_progress(),
     )
 
 

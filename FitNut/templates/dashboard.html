@@ -18,6 +18,77 @@
   </form>
 </section>
 <p class="dashboard-range">Showing {{ summary.start }}{% if summary.end != summary.start %} to {{ summary.end }}{% endif %}</p>
+<section class="panel dashboard-section goals-dashboard">
+
+  <div class="section-top">
+    <h2>My Goals</h2>
+    <a href="/goals">
+      {{ 'Manage goals →' if goal_data else 'Set goals →' }}
+    </a>
+  </div>
+
+  {% if goal_data %}
+
+  <p class="muted">
+    Current goal: {{ goal_data.goal_label }}
+  </p>
+
+  <div class="goals-dashboard-grid">
+
+    <div class="goal-metric">
+      <h3>Daily calories</h3>
+
+      <p>
+        {{ '{:,.0f}'.format(goal_data.calories) }}
+        /
+        {{ goal_data.goal.daily_calorie_target }}
+        kcal
+      </p>
+
+      <progress
+        value="{{ goal_data.calorie_bar }}"
+        max="100"
+        aria-label="Daily calorie goal progress"
+      ></progress>
+
+      <p class="muted">
+        {{ goal_data.calorie_percent }}% of target
+      </p>
+    </div>
+
+    <div class="goal-metric">
+      <h3>Weekly activity</h3>
+
+      <p>
+        {{ goal_data.activity_minutes }}
+        /
+        {{ goal_data.goal.weekly_activity_minutes }}
+        minutes
+      </p>
+
+      <progress
+        value="{{ goal_data.activity_bar }}"
+        max="100"
+        aria-label="Weekly activity goal progress"
+      ></progress>
+
+      <p class="muted">
+        {{ goal_data.activity_percent }}% of target
+      </p>
+    </div>
+
+  </div>
+
+  {% else %}
+
+  <p class="empty-state">
+    You have not set any fitness or nutrition goals yet.
+    <a href="/goals">Set your goals</a>.
+  </p>
+
+  {% endif %}
+
+</section>
 <section class="dashboard-cards" aria-label="Summary statistics">
   <article class="dashboard-card"><span class="card-icon">🍽</span><h2>Calories consumed</h2>
     <p class="card-value">{% if summary.food.calorie_entries %}{{ '{:,.0f}'.format(summary.food.calories) }} <small>kcal</small>{% else %}—{% endif %}</p>
