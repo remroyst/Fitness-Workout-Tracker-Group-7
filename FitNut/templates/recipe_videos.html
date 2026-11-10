@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Recipe Videos · FitNut{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">COOK & LEARN</p>
+    <h1>Recipe Video Demonstrations</h1>
+    <p class="muted">
+      Discover recipes, watch demonstrations and save favorites.
+    </p>
+    <a href="/recipes/saved">View Saved Recipes</a>
+  </div>
+</section>
+
+<div class="journal-layout">
+  <section class="panel">
+    <h2 id="recipe-form-heading">Share a Recipe</h2>
+
+    <form id="recipe-form">
+      <label>
+        Recipe title
+        <input name="title" maxlength="150" required>
+      </label>
+
+      <label>
+        Description
+        <textarea name="description" maxlength="1000"></textarea>
+      </label>
+
+      <label>
+        Ingredients
+        <textarea
+          name="ingredients"
+          rows="6"
+          maxlength="10000"
+          placeholder="One ingredient per line"
+          required
+        ></textarea>
+      </label>
+
+      <label>
+        Preparation instructions
+        <textarea
+          name="instructions"
+          rows="6"
+          maxlength="20000"
+          placeholder="Describe each preparation step"
+          required
+        ></textarea>
+      </label>
+
+      <label>
+        YouTube video URL
+        <input
+          name="video_url"
+          type="url"
+          placeholder="https://www.youtube.com/watch?v=..."
+          required
+        >
+      </label>
+
+      <label>
+        Category
+        <select name="category" required>
+          {% for item in categories %}
+            <option value="{{ item }}">{{ item|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Preparation time (minutes)
+        <input
+          name="preparation_minutes"
+          type="number"
+          min="1"
+          max="1440"
+          required
+        >
+      </label>
+
+      <label>
+        Servings
+        <input
+          name="servings"
+          type="number"
+          min="1"
+          max="100"
+          required
+        >
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button type="submit" id="recipe-submit">
+        Add Recipe
+      </button>
+
+      <button type="button" id="cancel-recipe-edit" hidden>
+        Cancel Edit
+      </button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Find a Recipe</h2>
+
+    <form method="get" action="/recipes">
+      <label>
+        Search title or ingredients
+        <input
+          name="q"
+          value="{{ search }}"
+          maxlength="80"
+          placeholder="Search recipes"
+        >
+      </label>
+
+      <label>
+        Category
+        <select name="category">
+          <option value="">All categories</option>
+          {% for item in categories %}
+            <option
+              value="{{ item }}"
+              {% if category == item %}selected{% endif %}
+            >
+              {{ item|capitalize }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <button type="submit">Search</button>
+    </form>
+  </section>
+</div>
+
+<section class="panel dashboard-section">
+  <h2>Recipe Library</h2>
+
+  <div class="recipe-grid">
+    {% for recipe in recipes %}
+      <article class="recipe-card">
+        <h3>{{ recipe.title }}</h3>
+
+        <p class="muted">
+          {{ recipe.category|capitalize }}
+          · {{ recipe.preparation_minutes }} minutes
+          · {{ recipe.servings }} servings
+        </p>
+
+        <p class="muted">
+          Shared by {{ recipe.first_name }} {{ recipe.last_name }}
+        </p>
+
+        {% if recipe.description %}
+          <p>{{ recipe.description }}</p>
+        {% endif %}
+
+        <div class="recipe-video">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/{{ recipe.youtube_video_id }}"
+            title="Video demonstration: {{ recipe.title }}"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        </div>
+
+        <h4>Ingredients</h4>
+        <p class="recipe-multiline">{{ recipe.ingredients }}</p>
+
+        <h4>Instructions</h4>
+        <p class="recipe-multiline">{{ recipe.instructions }}</p>
+
+        <div class="recipe-actions">
+          {% if recipe.is_saved %}
+            <button
+              type="button"
+              data-recipe-action="/recipes/{{ recipe.recipe_id }}/save"
+              data-method="DELETE"
+            >
+              Unsave
+            </button>
+          {% else %}
+            <button
+              type="button"
+              data-recipe-action="/recipes/{{ recipe.recipe_id }}/save"
+              data-method="POST"
+            >
+              Save Recipe
+            </button>
+          {% endif %}
+
+          {% if recipe.created_by == current_user_id %}
+            <button
+              type="button"
+              data-recipe-edit="{{ recipe.recipe_id }}"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              data-recipe-action="/recipes/{{ recipe.recipe_id }}"
+              data-method="DELETE"
+              data-confirm="Delete this recipe?"
+            >
+              Delete
+            </button>
+          {% endif %}
+        </div>
+      </article>
+    {% else %}
+      <p class="muted">
+        No recipes found. Try a different search or add one.
+      </p>
+    {% endfor %}
+  </div>
+</section>
+
+<script type="application/json" id="recipe-data">
+  {{ recipes|tojson }}
+</script>
+
+<script
+  src="{{ url_for('static', filename='recipe_videos.js') }}"
+  defer
+></script>
+
+{% endblock %}

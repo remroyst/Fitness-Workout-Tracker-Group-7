@@ -29,6 +29,7 @@ from profile import profile
 from measurements import measurements
 from social import social
 from personal_records import personal_records
+from recipe_videos import recipe_videos
 
 
 app = Flask(__name__)
@@ -68,6 +69,7 @@ app.register_blueprint(profile)
 app.register_blueprint(measurements)
 app.register_blueprint(social)
 app.register_blueprint(personal_records)
+app.register_blueprint(recipe_videos)
 
 app.before_request(load_user)
 app.teardown_appcontext(close_db)
@@ -85,6 +87,7 @@ def response_headers(response):
         "script-src 'self'; "
         "style-src 'self'; "
         "object-src 'none'; "
+        "frame-src https://www.youtube-nocookie.com; "
         "base-uri 'self'; "
         "form-action 'self'; "
         "frame-ancestors 'none'"
