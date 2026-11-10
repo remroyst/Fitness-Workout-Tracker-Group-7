@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Reminders & Motivation · FitNut{% endblock %}
+
+{% block content %}
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">STAY ON TRACK</p>
+    <h1>Reminders & Motivation</h1>
+    <p class="muted">
+      Set meal, workout, water and weigh-in reminders.
+    </p>
+  </div>
+</section>
+
+<div class="journal-layout">
+  <section class="panel">
+    <h2 id="reminder-form-title">Add reminder</h2>
+
+    <form id="reminder-form">
+      <label>
+        Reminder type
+        <select name="reminder_type" required>
+          {% for value, label in types.items() %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Reminder time
+        <input type="time" name="reminder_time" required>
+      </label>
+
+      <label>
+        Frequency
+        <select name="frequency" id="reminder-frequency">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </label>
+
+      <label id="weekday-field" hidden>
+        Day of week
+        <select name="weekday">
+          {% for day in days %}
+          <option value="{{ loop.index0 }}">{{ day }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Notification method
+        <select name="notification_method">
+          <option value="in_app">In-app</option>
+          <option value="browser">Browser notification</option>
+        </select>
+      </label>
+
+      <label class="reminder-check">
+        <input type="checkbox" name="motivation_enabled">
+        Include motivational messages
+      </label>
+
+      <label class="reminder-check">
+        <input type="checkbox" name="enabled" checked>
+        Reminder enabled
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button type="submit">Save reminder</button>
+      <button type="button" id="cancel-reminder-edit" hidden>
+        Cancel edit
+      </button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Your reminders</h2>
+
+    {% if reminders %}
+      {% for item in reminders %}
+      <div class="reminder-item">
+        <h3>{{ types[item.reminder_type] }}</h3>
+
+        <p>
+          {{ item.reminder_time|string|truncate(5, True, '') }}
+          · {{ item.frequency|capitalize }}
+          {% if item.frequency == 'weekly' %}
+            · {{ days[item.weekday] }}
+          {% endif %}
+        </p>
+
+        <p class="muted">
+          {{ 'Enabled' if item.enabled else 'Disabled' }}
+          · {{ item.notification_method|replace('_', '-') }}
+        </p>
+
+        <button
+          type="button"
+          class="reminder-edit"
+          data-id="{{ item.reminder_id }}"
+          data-type="{{ item.reminder_type }}"
+          data-time="{{ item.reminder_time|string|truncate(5, True, '') }}"
+          data-frequency="{{ item.frequency }}"
+          data-weekday="{{ item.weekday if item.weekday is not none else 0 }}"
+          data-method="{{ item.notification_method }}"
+          data-motivation="{{ 1 if item.motivation_enabled else 0 }}"
+          data-enabled="{{ 1 if item.enabled else 0 }}"
+        >Edit</button>
+
+        <button
+          type="button"
+          class="reminder-delete"
+          data-id="{{ item.reminder_id }}"
+        >Delete</button>
+      </div>
+      {% endfor %}
+
+      <button type="button" id="disable-all-reminders">
+        Turn off all reminders and messages
+      </button>
+    {% else %}
+      <p class="muted">No reminders configured yet.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="panel dashboard-section">
+  <h2>Notifications</h2>
+  <p class="muted">
+    Keep FitNut open to receive scheduled reminders.
+    Browser notifications require permission.
+  </p>
+
+  <div id="reminder-notifications" aria-live="polite">
+    {% for item in notifications %}
+      <div class="reminder-item">
+        <p>{{ item.message }}</p>
+        <p class="muted">{{ item.status|capitalize }}</p>
+      </div>
+    {% else %}
+      <p class="muted">No pending notifications.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<script
+  src="{{ url_for('static', filename='reminders.js') }}"
+  defer
+></script>
+{% endblock %}

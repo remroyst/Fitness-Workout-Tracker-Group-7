@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Goals · FitNut{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">FITNESS & NUTRITION</p>
+    <h1>My Goals</h1>
+    <p class="muted">
+      Set your targets and track progress using your logged meals
+      and activities.
+    </p>
+  </div>
+</section>
+
+<div class="journal-layout">
+
+  <div class="panel">
+    <h2>{{ 'Update goals' if saved else 'Set your goals' }}</h2>
+
+    <form
+      data-api="/goals"
+      data-redirect="/goals"
+    >
+
+      <label for="fitness-goal">
+        Fitness goal
+        <select
+          id="fitness-goal"
+          name="fitness_goal"
+          required
+        >
+          <option value="">Select a goal</option>
+
+          {% for value, label in fitness_goals.items() %}
+          <option
+            value="{{ value }}"
+            {% if saved and saved.fitness_goal == value %}
+              selected
+            {% endif %}
+          >
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label for="calorie-target">
+        Daily calorie target (kcal)
+        <input
+          id="calorie-target"
+          type="number"
+          name="daily_calorie_target"
+          min="1"
+          max="20000"
+          step="1"
+          value="{{ saved.daily_calorie_target if saved else '' }}"
+          required
+        >
+      </label>
+
+      <label for="activity-target">
+        Weekly activity target (minutes)
+        <input
+          id="activity-target"
+          type="number"
+          name="weekly_activity_minutes"
+          min="1"
+          max="10080"
+          step="1"
+          value="{{ saved.weekly_activity_minutes if saved else '' }}"
+          required
+        >
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button class="button" type="submit">
+        Save goals
+      </button>
+
+    </form>
+
+    {% if saved %}
+    <form
+      data-api="/goals/clear"
+      data-redirect="/goals"
+      class="goals-clear-form"
+    >
+      <p class="muted">
+        Clearing your goals does not delete your food or activity logs.
+      </p>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <button type="submit">
+        Clear goals
+      </button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Goal progress</h2>
+
+    {% if progress %}
+
+      <p>
+        <strong>{{ progress.goal_label }}</strong>
+      </p>
+
+      <div class="goal-metric">
+        <h3>Daily calorie intake</h3>
+
+        <p>
+          {{ '{:,.0f}'.format(progress.calories) }}
+          /
+          {{ progress.goal.daily_calorie_target }}
+          kcal
+        </p>
+
+        <progress
+          value="{{ progress.calorie_bar }}"
+          max="100"
+          aria-label="Daily calorie target progress"
+        ></progress>
+
+        <p class="muted">
+          {{ progress.calorie_percent }}% of daily target
+          · {{ progress.today }}
+        </p>
+
+        {% if not progress.calorie_entries %}
+        <p class="muted">
+          No calorie values recorded today.
+        </p>
+        {% endif %}
+      </div>
+
+      <div class="goal-metric">
+        <h3>Weekly activity</h3>
+
+        <p>
+          {{ progress.activity_minutes }}
+          /
+          {{ progress.goal.weekly_activity_minutes }}
+          minutes
+        </p>
+
+        <progress
+          value="{{ progress.activity_bar }}"
+          max="100"
+          aria-label="Weekly activity target progress"
+        ></progress>
+
+        <p class="muted">
+          {{ progress.activity_percent }}% of weekly target
+        </p>
+
+        <p class="muted">
+          {{ progress.week_start }} to {{ progress.week_end }}
+        </p>
+      </div>
+
+      <p class="muted">
+        Progress is calculated from your saved records.
+        Missing calorie values are not estimated.
+      </p>
+
+    {% else %}
+
+      <p class="empty-state">
+        You have not set any goals yet.
+        Use the form to get started.
+      </p>
+
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}

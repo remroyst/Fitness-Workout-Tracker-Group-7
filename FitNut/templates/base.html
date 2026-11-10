@@ -39,12 +39,14 @@
       {% if g.user %}
 
         {% for path, label in [
-          ('/dashboard', 'Overview'),
-          ('/food', 'Food'),
-          ('/activity', 'Activity'),
-          ('/sleep', 'Sleep'),
-          ('/exercises', 'Exercises')
-        ] %}
+  ('/dashboard', 'Overview'),
+  ('/food', 'Food'),
+  ('/activity', 'Activity'),
+  ('/sleep', 'Sleep'),
+  ('/exercises', 'Exercises'),
+  ('/goals', 'Goals'),
+  ('/reminders', 'Reminders')
+] %}
           <a
             href="{{ path }}"
             {% if request.path == path %}

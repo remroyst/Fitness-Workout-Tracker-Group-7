@@ -145,3 +145,93 @@ th { background: #26282d; }
 .bar-level-18 { height:90%; }
 .bar-level-19 { height:95%; }
 .bar-level-20 { height:100%; }
+
+/* Batch 3 - UC13: Fitness and Nutrition Goals */
+
+.goals-clear-form {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #48494f;
+}
+
+.goal-metric {
+  margin: 18px 0 26px;
+}
+
+.goal-metric h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.goal-metric > p {
+  margin: 8px 0;
+}
+
+.goal-metric progress {
+  display: block;
+  width: 100%;
+  height: 14px;
+  margin: 12px 0;
+  accent-color: #d5a16a;
+}
+
+.goals-dashboard {
+  margin-bottom: 20px;
+}
+
+.goals-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 650px) {
+  .goals-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+/* Batch 3 — UC10 Motivation & Reminders */
+
+.reminder-item {
+  padding: 18px 0;
+  border-bottom: 1px solid #48494f;
+}
+
+.reminder-item:last-child {
+  border-bottom: none;
+}
+
+.reminder-item h3 {
+  margin: 0 0 8px;
+}
+
+.reminder-item p {
+  margin: 8px 0;
+}
+
+.reminder-item button,
+.reminder-item a {
+  display: inline-block;
+  margin: 8px 10px 8px 0;
+}
+
+.reminder-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.reminder-check input {
+  width: auto;
+}
+
+#reminder-notifications {
+  margin-top: 16px;
+}
+
+#weekday-field[hidden] {
+  display: none;
+}
