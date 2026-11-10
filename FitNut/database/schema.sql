@@ -163,3 +163,39 @@ CREATE TABLE IF NOT EXISTS social_comments (
         ON DELETE CASCADE,
     INDEX idx_social_comments_post (post_id, created_at)
 ) ENGINE=InnoDB;
+
+-- Batch 6: UC12 Recipe Video Demonstrations
+
+CREATE TABLE IF NOT EXISTS video_recipes (
+    recipe_id INT AUTO_INCREMENT PRIMARY KEY,
+    created_by INT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    description VARCHAR(1000),
+    ingredients TEXT NOT NULL,
+    instructions TEXT NOT NULL,
+    youtube_video_id VARCHAR(11) NOT NULL,
+    preparation_minutes INT UNSIGNED NOT NULL,
+    servings INT UNSIGNED NOT NULL,
+    category ENUM(
+        'breakfast', 'lunch', 'dinner', 'snack'
+    ) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_video_recipe_creator
+        FOREIGN KEY (created_by)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    INDEX idx_video_recipe_category (category)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS saved_video_recipes (
+    user_id INT NOT NULL,
+    recipe_id INT NOT NULL,
+    saved_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, recipe_id),
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id)
+        REFERENCES video_recipes(recipe_id) ON DELETE CASCADE
+) ENGINE=InnoDB;

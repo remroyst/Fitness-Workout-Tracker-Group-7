@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Recipes · FitNut{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">YOUR COLLECTION</p>
+    <h1>Saved Recipes</h1>
+    <a href="/recipes">Back to Recipe Library</a>
+  </div>
+</section>
+
+<section class="panel dashboard-section">
+  {% for recipe in recipes %}
+    <article class="recipe-saved-item">
+      <h2>{{ recipe.title }}</h2>
+
+      <p class="muted">
+        {{ recipe.category|capitalize }}
+        · {{ recipe.preparation_minutes }} minutes
+      </p>
+
+      <a href="/recipes?q={{ recipe.title|urlencode }}">
+        Find in Recipe Library
+      </a>
+
+      <button
+        type="button"
+        data-recipe-action="/recipes/{{ recipe.recipe_id }}/save"
+        data-method="DELETE"
+      >
+        Remove from Saved
+      </button>
+    </article>
+  {% else %}
+    <p class="muted">
+      You haven't saved any recipes yet.
+    </p>
+  {% endfor %}
+</section>
+
+<script
+  src="{{ url_for('static', filename='recipe_videos.js') }}"
+  defer
+></script>
+
+{% endblock %}
