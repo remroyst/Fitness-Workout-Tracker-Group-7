@@ -106,3 +106,60 @@ CREATE TABLE IF NOT EXISTS body_measurements (
                OR body_fat_percent BETWEEN 0 AND 100),
     INDEX idx_body_measurements_user_date (user_id, measured_on)
 ) ENGINE=InnoDB;
+
+-- Batch 5: UC08 Social Networking
+
+CREATE TABLE IF NOT EXISTS friendships (
+    friendship_id INT AUTO_INCREMENT PRIMARY KEY,
+    requester_id INT NOT NULL,
+    addressee_id INT NOT NULL,
+    status ENUM('pending', 'accepted') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_friend_requester
+        FOREIGN KEY (requester_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_friend_addressee
+        FOREIGN KEY (addressee_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    CONSTRAINT chk_different_friends
+        CHECK (requester_id <> addressee_id),
+    UNIQUE KEY uq_friend_pair (requester_id, addressee_id),
+    INDEX idx_friend_addressee (addressee_id, status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS social_posts (
+    post_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    content VARCHAR(1000) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_social_post_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    INDEX idx_social_posts_user_date (user_id, created_at)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS social_likes (
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (post_id, user_id),
+    FOREIGN KEY (post_id) REFERENCES social_posts(post_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS social_comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    content VARCHAR(500) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES social_posts(post_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    INDEX idx_social_comments_post (post_id, created_at)
+) ENGINE=InnoDB;
