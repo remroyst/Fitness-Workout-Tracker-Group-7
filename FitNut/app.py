@@ -25,6 +25,8 @@ from dashboard_data import dashboard_summary
 from exercise_library import exercise_library
 from goals import goals, goal_progress
 from reminders import reminders
+from profile import profile
+from measurements import measurements
 
 
 app = Flask(__name__)
@@ -60,6 +62,8 @@ app.register_blueprint(logs)
 app.register_blueprint(exercise_library)
 app.register_blueprint(goals)
 app.register_blueprint(reminders)
+app.register_blueprint(profile)
+app.register_blueprint(measurements)
 
 app.before_request(load_user)
 app.teardown_appcontext(close_db)

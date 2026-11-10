@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Body Measurements · FitNut{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-heading">
+  <div>
+    <p class="eyebrow">TRACK YOUR PROGRESS</p>
+    <h1>Body Measurements</h1>
+    <p class="muted">
+      Record your measurements and track changes over time.
+    </p>
+  </div>
+</section>
+
+<div class="dashboard-cards">
+
+  <section class="dashboard-card">
+    <h2>Latest Weight</h2>
+    <p class="card-value">
+      {% if summary.latest is not none %}
+        {{ summary.latest }} <small>kg</small>
+      {% else %}
+        —
+      {% endif %}
+    </p>
+  </section>
+
+  <section class="dashboard-card">
+    <h2>Change Since Previous Entry</h2>
+    <p class="card-value">
+      {% if summary.change is not none %}
+        {% if summary.change > 0 %}+{% endif %}
+        {{ summary.change }} <small>kg</small>
+      {% else %}
+        —
+      {% endif %}
+    </p>
+  </section>
+
+</div>
+
+<div class="journal-layout">
+
+  <section class="panel entry-panel">
+    <h2 id="measurement-form-title">
+      Add Body Measurements
+    </h2>
+
+    <form id="measurement-form">
+
+      <label>
+        Measurement date
+        <input
+          name="measured_on"
+          type="date"
+          value="{{ today }}"
+          max="{{ today }}"
+          required
+        >
+      </label>
+
+      <p class="hint">
+        Enter at least one measurement.
+        All fields except the date are optional.
+      </p>
+
+      <div class="field-pair">
+        <label>
+          Weight (kg)
+          <input name="weight_kg" type="number"
+                 min="0.01" max="9999.99" step="0.01">
+        </label>
+
+        <label>
+          Body fat (%)
+          <input name="body_fat_percent" type="number"
+                 min="0.01" max="100" step="0.01">
+        </label>
+      </div>
+
+      <div class="field-pair">
+        <label>
+          Waist (cm)
+          <input name="waist_cm" type="number"
+                 min="0.01" max="9999.99" step="0.01">
+        </label>
+
+        <label>
+          Hips (cm)
+          <input name="hips_cm" type="number"
+                 min="0.01" max="9999.99" step="0.01">
+        </label>
+      </div>
+
+      <div class="field-pair">
+        <label>
+          Chest (cm)
+          <input name="chest_cm" type="number"
+                 min="0.01" max="9999.99" step="0.01">
+        </label>
+
+        <label>
+          Arm (cm)
+          <input name="arm_cm" type="number"
+                 min="0.01" max="9999.99" step="0.01">
+        </label>
+      </div>
+
+      <label>
+        Thigh (cm)
+        <input name="thigh_cm" type="number"
+               min="0.01" max="9999.99" step="0.01">
+      </label>
+
+      <label>
+        Notes
+        <textarea
+          name="notes"
+          rows="3"
+          maxlength="1000"
+          placeholder="Optional notes about your progress"
+        ></textarea>
+      </label>
+
+      <p class="form-message" role="alert" hidden></p>
+
+      <div class="actions">
+        <button class="button" type="submit">
+          Save Measurements
+        </button>
+
+        <button
+          class="secondary"
+          type="button"
+          id="cancel-measurement-edit"
+          hidden
+        >
+          Cancel Edit
+        </button>
+      </div>
+
+    </form>
+  </section>
+
+  <section class="panel history-panel">
+    <div class="section-top">
+      <h2>Measurement History</h2>
+      <span class="pill">
+        {{ records|length }} shown
+      </span>
+    </div>
+
+    {% if records %}
+
+      <div class="record-list">
+        {% for record in records %}
+
+          <article class="record">
+            <div class="record-top">
+              <h3>{{ record.measured_on }}</h3>
+              <span class="tag">
+                {% if record.weight_kg is not none %}
+                  {{ record.weight_kg }} kg
+                {% else %}
+                  Measurements
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="measurement-values">
+              {% for key, label, unit in [
+                ('waist_cm', 'Waist', 'cm'),
+                ('hips_cm', 'Hips', 'cm'),
+                ('chest_cm', 'Chest', 'cm'),
+                ('arm_cm', 'Arm', 'cm'),
+                ('thigh_cm', 'Thigh', 'cm'),
+                ('body_fat_percent', 'Body fat', '%')
+              ] %}
+                {% if record[key] is not none %}
+                  <p>
+                    <strong>{{ label }}:</strong>
+                    {{ record[key] }} {{ unit }}
+                  </p>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if record.notes %}
+              <p class="note-text">{{ record.notes }}</p>
+            {% endif %}
+
+            <div class="record-actions">
+              <button
+                type="button"
+                class="text-button"
+                data-measurement-edit="{{ record.measurement_id }}"
+              >
+                Edit
+              </button>
+
+              <button
+                type="button"
+                class="text-button danger"
+                data-measurement-delete="{{ record.measurement_id }}"
+              >
+                Delete
+              </button>
+            </div>
+          </article>
+
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <p class="empty-state">
+        No measurements recorded yet.
+        Add your first entry to begin tracking progress.
+      </p>
+    {% endif %}
+  </section>
+
+</div>
+
+<script type="application/json" id="measurement-data">
+  {{ records|tojson }}
+</script>
+
+<script
+  src="{{ url_for('static', filename='measurements.js') }}"
+  defer
+></script>
+
+{% endblock %}
