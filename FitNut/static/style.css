@@ -235,3 +235,28 @@ th { background: #26282d; }
 #weekday-field[hidden] {
   display: none;
 }
+
+/* Profile and Body Measurements */
+
+.measurement-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 18px;
+  margin: 12px 0;
+}
+
+.measurement-values p {
+  margin: 4px 0;
+  color: #d6d3ce;
+  font-size: 14px;
+}
+
+.measurement-values strong {
+  color: #f3eee7;
+}
+
+@media (max-width: 600px) {
+  .measurement-values {
+    grid-template-columns: 1fr;
+  }
+}

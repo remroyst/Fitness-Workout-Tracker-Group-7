@@ -81,3 +81,28 @@ CREATE TABLE IF NOT EXISTS reminder_notifications (
         ON DELETE CASCADE,
     KEY idx_notifications_user_status (user_id, status)
 ) ENGINE=InnoDB;
+
+-- Batch 4: UC09 Body Measurements
+CREATE TABLE IF NOT EXISTS body_measurements (
+    measurement_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    measured_on DATE NOT NULL,
+    weight_kg DECIMAL(6,2) NULL,
+    waist_cm DECIMAL(6,2) NULL,
+    hips_cm DECIMAL(6,2) NULL,
+    chest_cm DECIMAL(6,2) NULL,
+    arm_cm DECIMAL(6,2) NULL,
+    thigh_cm DECIMAL(6,2) NULL,
+    body_fat_percent DECIMAL(5,2) NULL,
+    notes VARCHAR(1000) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_body_measurements_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    CONSTRAINT chk_body_fat
+        CHECK (body_fat_percent IS NULL
+               OR body_fat_percent BETWEEN 0 AND 100),
+    INDEX idx_body_measurements_user_date (user_id, measured_on)
+) ENGINE=InnoDB;
