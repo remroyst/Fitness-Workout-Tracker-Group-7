@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} | FitNut{% endblock %}
+
+{% block content %}
+
+<section class="panel ai-header">
+  <p class="eyebrow">FITNUT AI ASSISTANT</p>
+  <h1>{{ title }}</h1>
+
+  <p>
+    Generate personalized suggestions using Google Gemini.
+    Review the results before following or logging them.
+  </p>
+
+  <div class="ai-links">
+    <a href="/ai/meal">Meal Planner</a>
+    <a href="/ai/workout">Workout Planner</a>
+    <a href="/ai/nutrition">Nutrition Recommendations</a>
+  </div>
+</section>
+
+<div class="ai-layout">
+
+  <section class="panel">
+    <h2>Generate a new result</h2>
+
+    <form id="ai-form" data-feature="{{ feature }}">
+
+      {% if feature == "meal" %}
+
+      <label for="goal">Fitness goal</label>
+      <select id="goal" name="goal">
+        <option value="maintain">Maintain weight</option>
+        <option value="lose_weight">Lose weight</option>
+        <option value="gain_muscle">Gain muscle</option>
+        <option value="improve_fitness">Improve fitness</option>
+      </select>
+
+      <label for="diet">Dietary preference</label>
+      <input
+        id="diet"
+        name="diet"
+        type="text"
+        maxlength="200"
+        value="{{ profile.preferences.dietary_preferences
+                 or 'Balanced' }}"
+      >
+
+      <label for="restrictions">
+        Additional allergies or restrictions
+      </label>
+      <textarea
+        id="restrictions"
+        name="restrictions"
+        rows="3"
+        maxlength="500"
+      >{{ profile.preferences.allergies or '' }}</textarea>
+
+      <label for="calorie_target">
+        Daily calorie target
+      </label>
+      <input
+        id="calorie_target"
+        name="calorie_target"
+        type="number"
+        min="800"
+        max="6000"
+        value="{{ profile.goals.daily_calorie_target
+                 or 2000 }}"
+        required
+      >
+
+      <label for="meals_per_day">
+        Meals per day
+      </label>
+      <select id="meals_per_day" name="meals_per_day">
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+
+      <label for="duration_days">
+        Duration
+      </label>
+      <select id="duration_days" name="duration_days">
+        <option value="1">1 day</option>
+        <option value="7">7 days</option>
+      </select>
+
+      {% elif feature == "workout" %}
+
+      <label for="goal">Fitness goal</label>
+      <select id="goal" name="goal">
+        <option value="improve_fitness">
+          Improve fitness
+        </option>
+        <option value="gain_muscle">
+          Gain muscle
+        </option>
+        <option value="lose_weight">
+          Lose weight
+        </option>
+        <option value="maintain">
+          Maintain weight
+        </option>
+      </select>
+
+      <label for="fitness_level">
+        Fitness level
+      </label>
+      <select id="fitness_level" name="fitness_level">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+
+      <label for="equipment">
+        Available equipment
+      </label>
+      <input
+        id="equipment"
+        name="equipment"
+        type="text"
+        value="Bodyweight"
+        maxlength="500"
+        required
+      >
+
+      <label for="days_per_week">
+        Workout days per week
+      </label>
+      <input
+        id="days_per_week"
+        name="days_per_week"
+        type="number"
+        min="1"
+        max="7"
+        value="3"
+        required
+      >
+
+      <label for="session_minutes">
+        Session duration (minutes)
+      </label>
+      <input
+        id="session_minutes"
+        name="session_minutes"
+        type="number"
+        min="10"
+        max="180"
+        value="45"
+        required
+      >
+
+      <label for="limitations">
+        Physical limitations
+      </label>
+      <textarea
+        id="limitations"
+        name="limitations"
+        rows="3"
+        maxlength="500"
+        placeholder="Optional"
+      ></textarea>
+
+      {% else %}
+
+      <p>
+        Gemini will analyze your recent food logs,
+        dietary preferences and fitness goals.
+      </p>
+
+      <label for="focus">
+        What would you like to improve?
+      </label>
+      <textarea
+        id="focus"
+        name="focus"
+        rows="3"
+        maxlength="300"
+        placeholder="Example: More protein at breakfast"
+      ></textarea>
+
+      {% endif %}
+
+      <button
+        type="submit"
+        class="button"
+        id="ai-generate-button"
+      >
+        Generate with Gemini
+      </button>
+
+      <p id="ai-form-message" role="status"></p>
+
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Previously generated</h2>
+
+    {% for item in saved %}
+    <article class="ai-saved-item">
+      <h3>{{ item.title }}</h3>
+      <p>
+        {{ item.status|capitalize }}
+        · {{ item.created_at }}
+      </p>
+
+      <button
+        type="button"
+        data-open-generation="{{ item.generation_id }}"
+      >
+        Open
+      </button>
+    </article>
+    {% else %}
+    <p>No saved AI results yet.</p>
+    {% endfor %}
+
+  </section>
+
+</div>
+
+<section
+  class="panel"
+  id="ai-result-panel"
+  hidden
+>
+  <h2 id="ai-result-title">Generated result</h2>
+
+  <p id="ai-result-status">Draft</p>
+
+  <div id="ai-result-content"></div>
+
+  <div class="ai-actions">
+    <button type="button" id="ai-save">
+      Save changes
+    </button>
+
+    <button type="button" id="ai-accept">
+      Accept plan
+    </button>
+
+    <button type="button" id="ai-delete">
+      Delete
+    </button>
+  </div>
+
+  <p id="ai-result-message" role="status"></p>
+</section>
+
+<section class="panel">
+  <p>
+    AI-generated nutrition values are estimates.
+    Check ingredients and allergen information yourself.
+    Workout suggestions are general wellness guidance,
+    not medical advice.
+  </p>
+</section>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='ai_planner.css') }}"
+>
+
+<script
+  src="{{ url_for('static', filename='ai_planner.js') }}"
+  defer
+></script>
+
+{% endblock %}

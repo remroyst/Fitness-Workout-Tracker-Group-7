@@ -1,13 +1,55 @@
 <section class="almond" aria-labelledby="almond-title">
+
   <div class="section-top">
     <h2 id="almond-title">Ask Almond</h2>
-    <span class="hint">Coming soon</span>
+    <span class="hint">Powered by Gemini</span>
   </div>
-  <p>Your FitNut companion for meal and workout ideas.</p>
-  <label for="almond-question">What would you like help with?</label>
-  <textarea id="almond-question" rows="3" aria-describedby="almond-note" placeholder="{% if kind == 'food' %}Ask about meal ideas…{% elif kind == 'activity' %}Ask about workout ideas…{% else %}Ask about meals or workouts…{% endif %}" disabled></textarea>
-  <div class="almond-actions">
-    <p class="hint" id="almond-note">Almond will be here soon.</p>
-    <button class="button" type="button" disabled>Ask Almond</button>
+
+  <p>
+    Your FitNut AI companion for meals,
+    workouts, nutrition and fitness questions.
+  </p>
+
+  <form id="almond-form">
+
+    <label for="almond-question">
+      What would you like help with?
+    </label>
+
+    <textarea
+      id="almond-question"
+      name="question"
+      rows="3"
+      maxlength="1000"
+      required
+      placeholder="Ask about meals, workouts, or nutrition..."
+    ></textarea>
+
+    <div class="almond-actions">
+      <button
+        class="button"
+        type="submit"
+        id="almond-submit"
+      >
+        Ask Almond
+      </button>
+    </div>
+
+  </form>
+
+  <div
+    id="almond-response"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    <h3>Almond says</h3>
+    <p id="almond-answer"></p>
   </div>
+
 </section>
+
+<script
+  src="{{ url_for('static', filename='almond.js') }}"
+  defer
+></script>
