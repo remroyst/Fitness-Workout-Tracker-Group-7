@@ -35,6 +35,7 @@ from preferences import preferences
 from activity_details import activity_details
 from data_export import data_export
 from recipe_nutrition import recipe_nutrition
+from ai_features import ai_features
 
 
 app = Flask(__name__)
@@ -80,6 +81,7 @@ app.register_blueprint(preferences)
 app.register_blueprint(activity_details)
 app.register_blueprint(data_export)
 app.register_blueprint(recipe_nutrition)
+app.register_blueprint(ai_features)
 
 app.before_request(load_user)
 app.teardown_appcontext(close_db)
