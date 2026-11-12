@@ -405,7 +405,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
+    const skeleton = document.getElementById(
+  "ai-result-skeleton"
+);
 
+if (skeleton) {
+  skeleton.hidden = false;
+}
+
+  
     generateButton.disabled = true;
     generateButton.textContent = "Generating...";
     formMessage.textContent = "";
@@ -437,6 +445,9 @@ document.addEventListener("DOMContentLoaded", () => {
       generateButton.disabled = false;
       generateButton.textContent =
         "Generate with Gemini";
+        if (skeleton) {
+  skeleton.hidden = true;
+}
     }
   });
 

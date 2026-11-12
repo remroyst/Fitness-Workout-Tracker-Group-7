@@ -110,6 +110,17 @@ Exercise Library · FitNut
     <span>{{ selected.equipment }}</span>
   </div>
 
+  <figure class="exercise-detail-photo">
+    <img
+      src="{{ url_for('static', filename='images/exercises/' ~ selected.slug ~ '.webp') }}"
+      alt="{{ selected.name }} exercise"
+      width="960"
+      height="600"
+      decoding="async"
+    >
+    <figcaption>{{ selected.name }} exercise guide</figcaption>
+  </figure>
+
   <h3>Step-by-step instructions</h3>
 
   <ol class="exercise-instructions">
@@ -137,7 +148,7 @@ Exercise Library · FitNut
       rel="noopener noreferrer"
       class="exercise-video-link"
     >
-      ▶ Find {{ selected.name }} videos
+      <span class="fitnut-play-icon" aria-hidden="true"></span> Find {{ selected.name }} videos
     </a>
   </div>
 
@@ -166,26 +177,15 @@ Exercise Library · FitNut
 
     <article class="exercise-card">
       <div class="exercise-card-art">
-        <span class="exercise-card-symbol">
-          {% if item.muscle == 'Cardio' %}
-            ♥
-          {% elif item.muscle == 'Core' %}
-            ◎
-          {% elif item.muscle == 'Legs' %}
-            ↟
-          {% elif item.muscle == 'Arms' %}
-            ◆
-          {% elif item.muscle == 'Chest' %}
-            ◇
-          {% elif item.muscle == 'Back' %}
-            ↗
-          {% elif item.muscle == 'Shoulders' %}
-            ✦
-          {% else %}
-            ●
-          {% endif %}
-        </span>
-
+        <img
+          class="exercise-card-image"
+          src="{{ url_for('static', filename='images/exercises/' ~ item.slug ~ '.webp') }}"
+          alt="{{ item.name }} exercise demonstration"
+          loading="lazy"
+          decoding="async"
+          width="640"
+          height="480"
+        >
         <span class="exercise-art-label">
           {{ item.muscle }}
         </span>
@@ -221,7 +221,7 @@ Exercise Library · FitNut
             rel="noopener noreferrer"
             aria-label="Find demonstration videos for {{ item.name }}"
           >
-            ▶ Videos
+            <span class="fitnut-play-icon" aria-hidden="true"></span> Videos
           </a>
         </div>
       </div>

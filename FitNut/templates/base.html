@@ -19,6 +19,16 @@
   href="{{ url_for('static', filename='midnight-mint.css') }}"
 >
 
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='fitnut-redesign.css') }}"
+>
+
+<script
+  src="{{ url_for('static', filename='fitnut-redesign.js') }}"
+  defer
+></script>
+
 <script
   src="{{ url_for('static', filename='theme.js') }}"
   defer>
@@ -35,9 +45,13 @@
     src="{{ url_for('static', filename='app.js') }}"
     defer
   ></script>
+  <script
+  src="{{ url_for('static', filename='almond-prefill.js') }}"
+  defer
+></script>
 </head>
 
-<body>
+<body class="{% if request.path.startswith('/ai/') %}fitnut-ai-page{% endif %}">
   <a class="skip-link" href="#main-content">
     Skip to content
   </a>
@@ -123,5 +137,45 @@
 
     {% block content %}{% endblock %}
   </main>
+  {% if g.user %}
+
+<button
+  id="almond-launcher"
+  class="almond-launcher"
+  type="button"
+  aria-label="Open Ask Almond"
+  aria-expanded="false"
+  aria-controls="almond-floating-panel"
+>
+  <span class="almond-launcher-symbol"></span>
+</button>
+
+<aside
+  id="almond-floating-panel"
+  class="almond-floating-panel"
+  aria-label="Ask Almond assistant"
+  hidden
+>
+  <div class="almond-panel-top">
+    <h2>Ask Almond</h2>
+
+    <button
+      type="button"
+      id="almond-close"
+      aria-label="Close Ask Almond"
+    >
+      ✕
+    </button>
+  </div>
+
+  {% include 'almond.html' %}
+</aside>
+
+<script
+  src="{{ url_for('static', filename='almond-floating.js') }}"
+  defer
+></script>
+
+{% endif %}
 </body>
 </html>

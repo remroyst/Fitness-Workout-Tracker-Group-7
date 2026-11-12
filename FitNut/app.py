@@ -21,7 +21,10 @@ from accounts import (
 from db import close_db, fetch_all, to_json
 from logs import logs, LOG_TYPES
 from log_data import read_items, meal_choices
-from dashboard_data import dashboard_summary
+from dashboard_data import (
+    dashboard_summary,
+    fitness_consistency,
+)
 from exercise_library import exercise_library
 from goals import goals, goal_progress
 from reminders import reminders
@@ -181,7 +184,8 @@ def dashboard():
     "dashboard.html",
     summary=summary,
     goal_data=goal_progress(),
-    )
+    consistency=fitness_consistency(),
+)
 
 
 @app.get("/food")
