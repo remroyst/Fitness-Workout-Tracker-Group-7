@@ -4,6 +4,31 @@
 
 {% block content %}
 
+{% if feature == "meal" %}
+  {% set ai_photo = "images/ai/meal-planner.webp" %}
+  {% set ai_caption = "Personalized Meal Planning" %}
+{% elif feature == "workout" %}
+  {% set ai_photo = "images/ai/workout-planner.webp" %}
+  {% set ai_caption = "Personalized Workout Planning" %}
+{% else %}
+  {% set ai_photo = "images/ai/nutrition.webp" %}
+  {% set ai_caption = "Personalized Nutrition Guidance" %}
+{% endif %}
+
+<section class="photo-card">
+  <img
+    src="{{ url_for('static', filename=ai_photo) }}"
+    alt=""
+    width="1200"
+    height="450"
+    fetchpriority="high"
+  >
+
+  <div class="photo-card-caption">
+    <h1>{{ ai_caption }}</h1>
+  </div>
+</section>
+
 <section class="panel ai-header">
   <p class="eyebrow">FITNUT AI ASSISTANT</p>
   <h1>{{ title }}</h1>
@@ -225,6 +250,27 @@
 
 </div>
 
+<div
+  id="ai-result-skeleton"
+  hidden
+  aria-hidden="true"
+>
+  <div
+    class="fitnut-skeleton"
+    style="height: 36px; margin-bottom: 14px;"
+  ></div>
+
+  <div
+    class="fitnut-skeleton"
+    style="height: 90px; margin-bottom: 14px;"
+  ></div>
+
+  <div
+    class="fitnut-skeleton"
+    style="height: 90px;"
+  ></div>
+</div>
+
 <section
   class="panel"
   id="ai-result-panel"
@@ -233,6 +279,8 @@
   <h2 id="ai-result-title">Generated result</h2>
 
   <p id="ai-result-status">Draft</p>
+
+  
 
   <div id="ai-result-content"></div>
 
@@ -269,6 +317,16 @@
 
 <script
   src="{{ url_for('static', filename='ai_planner.js') }}"
+  defer
+></script>
+
+<script
+  src="{{ url_for('static', filename='ai-prefill.js') }}"
+  defer
+></script>
+
+<script
+  src="{{ url_for('static', filename='ai-loading.js') }}"
   defer
 ></script>
 
