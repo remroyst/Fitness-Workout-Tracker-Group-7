@@ -4,6 +4,7 @@
 {% block content %}
 <section class="dashboard-heading">
   <div><p class="eyebrow">YOUR HEALTH OVERVIEW</p><h1>Welcome back, {{ g.user.first_name }}!</h1>
+    
     <p class="muted">Your food, movement, and sleep records in one place.</p></div>
   <form class="dashboard-filters" method="get" action="/dashboard">
     <label>View by
@@ -18,6 +19,36 @@
   </form>
 </section>
 <p class="dashboard-range">Showing {{ summary.start }}{% if summary.end != summary.start %} to {{ summary.end }}{% endif %}</p>
+<section class="fitnut-photo-grid">
+
+  <a href="/food" class="photo-card">
+    <img
+      src="{{ url_for('static', filename='images/food/healthy-bowl.webp') }}"
+      alt="A healthy prepared meal"
+      loading="lazy"
+      width="600"
+      height="400"
+    >
+    <span class="photo-card-caption">
+      Food & Nutrition
+    </span>
+  </a>
+
+  <a href="/activity" class="photo-card">
+    <img
+      src="{{ url_for('static', filename='images/workouts/strength-training.webp') }}"
+      alt="Strength training in a gym"
+      loading="lazy"
+      width="600"
+      height="400"
+    >
+    <span class="photo-card-caption">
+      Activity & Workouts
+    </span>
+  </a>
+
+</section>
+
 <section class="panel dashboard-section goals-dashboard">
 
   <div class="section-top">
@@ -33,51 +64,106 @@
     Current goal: {{ goal_data.goal_label }}
   </p>
 
-  <div class="goals-dashboard-grid">
+  <div class="fitnut-ring-grid">
 
-    <div class="goal-metric">
-      <h3>Daily calories</h3>
+  <!-- Daily calorie progress ring -->
+  <article class="fitnut-ring-card">
 
-      <p>
-        {{ '{:,.0f}'.format(goal_data.calories) }}
-        /
-        {{ goal_data.goal.daily_calorie_target }}
-        kcal
-      </p>
+    <h3>Daily calories</h3>
 
-      <progress
-        value="{{ goal_data.calorie_bar }}"
-        max="100"
-        aria-label="Daily calorie goal progress"
-      ></progress>
+    <div
+      class="fitnut-ring"
+      data-fitnut-ring
+      data-percent="{{ goal_data.calorie_bar }}"
+      role="img"
+      aria-label="{{ goal_data.calorie_percent }} percent of daily calorie target"
+    >
+      <svg viewBox="0 0 100 100" aria-hidden="true">
 
-      <p class="muted">
-        {{ goal_data.calorie_percent }}% of target
-      </p>
+        <circle
+          class="fitnut-ring-track"
+          cx="50"
+          cy="50"
+          r="42"
+        ></circle>
+
+        <circle
+          class="fitnut-ring-progress"
+          cx="50"
+          cy="50"
+          r="42"
+        ></circle>
+
+      </svg>
+
+      <div class="fitnut-ring-number">
+        {{ goal_data.calorie_percent }}%
+      </div>
+
     </div>
 
-    <div class="goal-metric">
-      <h3>Weekly activity</h3>
+    <p>
+      {{ '{:,.0f}'.format(goal_data.calories) }}
+      /
+      {{ goal_data.goal.daily_calorie_target }}
+      kcal
+    </p>
 
-      <p>
-        {{ goal_data.activity_minutes }}
-        /
-        {{ goal_data.goal.weekly_activity_minutes }}
-        minutes
-      </p>
+  </article>
 
-      <progress
-        value="{{ goal_data.activity_bar }}"
-        max="100"
-        aria-label="Weekly activity goal progress"
-      ></progress>
 
-      <p class="muted">
-        {{ goal_data.activity_percent }}% of target
-      </p>
+  <!-- Weekly activity progress ring -->
+  <article class="fitnut-ring-card">
+
+    <h3>Weekly activity</h3>
+
+    <div
+      class="fitnut-ring"
+      data-fitnut-ring
+      data-percent="{{ goal_data.activity_bar }}"
+      role="img"
+      aria-label="{{ goal_data.activity_percent }} percent of weekly activity target"
+    >
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+
+        <circle
+          class="fitnut-ring-track"
+          cx="50"
+          cy="50"
+          r="42"
+        ></circle>
+
+        <circle
+          class="fitnut-ring-progress"
+          cx="50"
+          cy="50"
+          r="42"
+        ></circle>
+
+      </svg>
+
+      <div class="fitnut-ring-number">
+        {{ goal_data.activity_percent }}%
+      </div>
+
     </div>
 
-  </div>
+    <p>
+      {{ goal_data.activity_minutes }}
+      /
+      {{ goal_data.goal.weekly_activity_minutes }}
+      minutes
+    </p>
+
+  </article>
+
+  <div
+  hidden
+  data-fitnut-milestone="weekly-activity-{{ goal_data.goal.weekly_activity_minutes }}"
+  data-reached="{{ 'true' if goal_data.activity_percent >= 100 else 'false' }}"
+></div>
+
+</div>
 
   {% else %}
 
@@ -89,6 +175,25 @@
   {% endif %}
 
 </section>
+
+<section class="fitnut-photo-grid" aria-label="FitNut shortcuts">
+
+  {% set image_path = 'images/food/healthy-bowl.webp' %}
+  {% set image_alt = 'Healthy meal in a bowl' %}
+  {% set card_title = 'Food & Nutrition' %}
+  {% set card_description = 'Track meals and monitor your nutrition.' %}
+  {% set card_link = '/food' %}
+  {% include '_photo_card.html' %}
+
+  {% set image_path = 'images/workouts/strength-training.webp' %}
+  {% set image_alt = 'Person strength training at the gym' %}
+  {% set card_title = 'Workout & Activity' %}
+  {% set card_description = 'Log workouts and track your activity.' %}
+  {% set card_link = '/activity' %}
+  {% include '_photo_card.html' %}
+
+</section>
+
 <section class="dashboard-cards" aria-label="Summary statistics">
   <article class="dashboard-card"><span class="card-icon">🍽</span><h2>Calories consumed</h2>
     <p class="card-value">{% if summary.food.calorie_entries %}{{ '{:,.0f}'.format(summary.food.calories) }} <small>kcal</small>{% else %}—{% endif %}</p>
@@ -126,6 +231,37 @@
     {% endif %}
   </article>
 </section>
+<section class="panel dashboard-section">
+
+  <div class="section-top">
+    <h2>Fitness Consistency</h2>
+    <span class="muted">Last 91 days</span>
+  </div>
+
+  <p class="muted">
+    Your food and activity logging consistency.
+    Darker gold means more entries recorded.
+  </p>
+
+  <div
+    class="fitnut-heatmap"
+    aria-label="Fitness logging consistency over 91 days"
+  >
+    {% for day in consistency %}
+    <div
+      class="fitnut-heatmap-cell"
+      data-level="{{ day.level }}"
+      title="{{ day.date }}: {{ day.count }} entries"
+      aria-label="{{ day.date }}: {{ day.count }} entries"
+    ></div>
+    {% endfor %}
+  </div>
+
+  <p class="muted">
+    Each square represents one day.
+  </p>
+
+</section>
 <section class="panel dashboard-section"><div class="section-top"><h2>Daily trends</h2><span class="muted">{{ summary.period|capitalize }} view</span></div>
   {% if summary.food.calorie_entries or summary.activity.entries %}
     <div class="chart-legend"><span><i class="legend-dot food-dot"></i> Food calories (kcal)</span><span><i class="legend-dot activity-dot"></i> Activity (minutes)</span></div>
@@ -144,5 +280,4 @@
     </details>
   {% else %}<p class="empty-state">No calorie or activity data available for the selected period.</p>{% endif %}
 </section>
-{% include 'almond.html' %}
 {% endblock %}
