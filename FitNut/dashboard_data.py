@@ -234,3 +234,75 @@ def dashboard_summary(period="day", selected=None):
         },
         "days": days,
     }
+
+def fitness_consistency(days=91):
+    """Return daily food/activity logging counts."""
+
+    end = date.today() + timedelta(days=1)
+    start = end - timedelta(days=days)
+    user_id = g.user["user_id"]
+
+    food_rows = fetch_all(
+        """
+        SELECT DATE(e.event_datetime) AS log_date,
+               COUNT(*) AS total
+        FROM eating_events e
+        JOIN food_entries f
+          ON f.eating_event_id = e.eating_event_id
+        WHERE e.user_id = %s
+          AND e.event_datetime >= %s
+          AND e.event_datetime < %s
+        GROUP BY DATE(e.event_datetime)
+        """,
+        (user_id, start, end),
+    )
+
+    activity_rows = fetch_all(
+        """
+        SELECT DATE(time_started) AS log_date,
+               COUNT(*) AS total
+        FROM activity_events
+        WHERE user_id = %s
+          AND time_started >= %s
+          AND time_started < %s
+        GROUP BY DATE(time_started)
+        """,
+        (user_id, start, end),
+    )
+
+    counts = {}
+
+    for row in food_rows:
+        key = str(row["log_date"])
+        counts[key] = counts.get(key, 0) + int(
+            row["total"] or 0
+        )
+
+    for row in activity_rows:
+        key = str(row["log_date"])
+        counts[key] = counts.get(key, 0) + int(
+            row["total"] or 0
+        )
+
+    results = []
+
+    for offset in range(days):
+        day = start + timedelta(days=offset)
+        count = counts.get(day.isoformat(), 0)
+
+        if count == 0:
+            level = 0
+        elif count == 1:
+            level = 1
+        elif count <= 3:
+            level = 2
+        else:
+            level = 3
+
+        results.append({
+            "date": day.isoformat(),
+            "count": count,
+            "level": level,
+        })
+
+    return results

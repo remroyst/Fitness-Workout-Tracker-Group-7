@@ -1,0 +1,18 @@
+
+<article class="fitnut-photo-card">
+  <img
+    src="{{ url_for('static', filename=image_path) }}"
+    alt="{{ image_alt }}"
+    loading="lazy"
+    decoding="async"
+  >
+  <div class="fitnut-photo-card-content">
+    <h3>{{ card_title }}</h3>
+    {% if card_description %}
+      <p>{{ card_description }}</p>
+    {% endif %}
+    {% if card_link %}
+      <a href="{{ card_link }}">Explore →</a>
+    {% endif %}
+  </div>
+</article>
