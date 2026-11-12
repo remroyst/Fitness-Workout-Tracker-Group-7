@@ -84,6 +84,12 @@ REQUIREMENTS:
     except AIServiceError:
         raise
     except Exception as exc:
+        print(
+            f"Gemini_error: {type(exc).__name__};"
+            f"code={getattr(exc, 'code', 'N/A')};"
+            f"status={getattr(exc, 'status', 'N/A')}",
+            flush=True,
+        )
         raise AIServiceError(
             "Gemini could not generate a response. "
             "Check your API key, quota and connection."
